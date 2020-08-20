@@ -70,16 +70,16 @@
 		350A1BBE24ED3CFB008F7ED4 /* DocumentBasedEmojiArt */ = {
 			isa = PBXGroup;
 			children = (
+				350A1BBF24ED3CFB008F7ED4 /* AppDelegate.swift */,
 				35BCFD1D24EE5DBF00804A8F /* EmojiArt.swift */,
+				350A1BC524ED3CFB008F7ED4 /* EmojiArtDocument.swift */,
 				35BCFD2224EE5DC000804A8F /* EmojiArtView.swift */,
 				35BCFD1E24EE5DC000804A8F /* EmojiArtView+Gestures.swift */,
 				35BCFD2024EE5DC000804A8F /* EmojiArtViewController.swift */,
 				35BCFD1C24EE5DBF00804A8F /* EmojiCollectionViewCell.swift */,
+				350A1BC124ED3CFB008F7ED4 /* DocumentBrowserViewController.swift */,
 				35BCFD2124EE5DC000804A8F /* TextFieldCollectionViewCell.swift */,
 				35BCFD1F24EE5DC000804A8F /* Utilities.swift */,
-				350A1BBF24ED3CFB008F7ED4 /* AppDelegate.swift */,
-				350A1BC124ED3CFB008F7ED4 /* DocumentBrowserViewController.swift */,
-				350A1BC524ED3CFB008F7ED4 /* EmojiArtDocument.swift */,
 				350A1BC724ED3CFB008F7ED4 /* Main.storyboard */,
 				350A1BCA24ED3CFD008F7ED4 /* Assets.xcassets */,
 				350A1BCC24ED3CFD008F7ED4 /* LaunchScreen.storyboard */,
