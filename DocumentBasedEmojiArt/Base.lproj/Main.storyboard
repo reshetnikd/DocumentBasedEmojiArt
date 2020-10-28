@@ -171,12 +171,7 @@
                     <navigationItem key="navigationItem" id="Hys-7K-kke">
                         <barButtonItem key="leftBarButtonItem" systemItem="done" id="z9F-fq-Gbw">
                             <connections>
-                                <action selector="close:" destination="xHx-6e-NPF" id="Plv-Iw-ifV"/>
-                            </connections>
-                        </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" systemItem="save" id="p5J-9h-abm">
-                            <connections>
-                                <action selector="save:" destination="xHx-6e-NPF" id="tls-30-C2F"/>
+                                <action selector="done:" destination="xHx-6e-NPF" id="o30-Pl-x0K"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
