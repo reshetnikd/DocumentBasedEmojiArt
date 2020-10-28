@@ -8,8 +8,14 @@
 
 import UIKit
 
+protocol EmojiArtViewDelegate: class {
+    func emojiArtViewDidChange(_ sender: EmojiArtView)
+}
+
 class EmojiArtView: UIView, UIDropInteractionDelegate {
 
+    private var labelObservation: [UIView: NSKeyValueObservation] = [:]
+    weak var delegate: EmojiArtViewDelegate?
     var backgroundImage: UIImage? {
         didSet {
             setNeedsDisplay()
@@ -20,6 +26,14 @@ class EmojiArtView: UIView, UIDropInteractionDelegate {
     override func draw(_ rect: CGRect) {
         // Drawing code
         backgroundImage?.draw(in: bounds)
+    }
+    
+    override func willRemoveSubview(_ subview: UIView) {
+        super.willRemoveSubview(subview)
+        
+        if labelObservation[subview] != nil {
+            labelObservation[subview] = nil
+        }
     }
     
     override init(frame: CGRect) {
@@ -44,6 +58,10 @@ class EmojiArtView: UIView, UIDropInteractionDelegate {
         label.sizeToFit()
         addEmojiArtGestureRecognizers(to: label)
         addSubview(label)
+        labelObservation[label] = label.observe(\.center, changeHandler: { (label, change) in
+            self.delegate?.emojiArtViewDidChange(self)
+            NotificationCenter.default.post(name: NSNotification.Name.EmojiArtViewDidChange, object: self)
+        })
     }
     
     func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {
@@ -59,9 +77,15 @@ class EmojiArtView: UIView, UIDropInteractionDelegate {
             let dropPoint = session.location(in: self)
             for attributedString in providers as? [NSAttributedString] ?? [] {
                 self.addLabel(with: attributedString, centeredAt: dropPoint)
+                self.delegate?.emojiArtViewDidChange(self)
+                NotificationCenter.default.post(name: NSNotification.Name.EmojiArtViewDidChange, object: self)
             }
         }
     }
     
 
+}
+
+extension Notification.Name {
+    static let EmojiArtViewDidChange = Notification.Name("EmojiArtViewDidChange")
 }
