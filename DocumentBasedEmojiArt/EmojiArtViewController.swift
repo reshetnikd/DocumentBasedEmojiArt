@@ -11,6 +11,7 @@ import UIKit
 class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate {
     
     // MARK: - Model
+    
     var document: EmojiArtDocument?
     var emojiArt: EmojiArt? {
         get {
@@ -118,7 +119,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
             document?.thumbnail = emojiArtView.snapshot
         }
         
-        dismiss(animated: true) {
+        presentingViewController?.dismiss(animated: true) {
             self.document?.close(completionHandler: { (success) in
                 if let observer = self.documentObserver {
                     NotificationCenter.default.removeObserver(observer)
@@ -159,6 +160,17 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
         })
     }
     
+    // MARK: - Navigation
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "Show Document Info" {
+            if let destination = segue.destination.contents as? DocumentInfoViewController {
+                document?.thumbnail = emojiArtView.snapshot
+                destination.document = document
+            }
+        }
+    }
+    
     private func dragItems(at indexPath: IndexPath) -> [UIDragItem] {
         if !addingEmoji, let attributedString = (emojiCollectionView.cellForItem(at: indexPath) as? EmojiCollectionViewCell)?.label.attributedText {
             let dragItem = UIDragItem(itemProvider: NSItemProvider(object: attributedString))
@@ -196,6 +208,8 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
             document?.updateChangeCount(UIDocument.ChangeKind.done)
         }
     }
+    
+    // MARK: - UICollectionViewDelegate
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 2
@@ -312,6 +326,8 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
         scrollViewWidth.constant = scrollView.contentSize.width
         scrollViewHeight.constant = scrollView.contentSize.height
     }
+    
+    // MARK: - UICollectionViewDropDelegate
     
     func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {
         return session.canLoadObjects(ofClass: NSURL.self) && session.canLoadObjects(ofClass: UIImage.self)
