@@ -8,7 +8,7 @@
 
 import UIKit
 
-class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate {
+class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate, UIPopoverPresentationControllerDelegate {
     
     // MARK: - Model
     
@@ -72,6 +72,8 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     }
     @IBOutlet weak var scrollViewWidth: NSLayoutConstraint!
     @IBOutlet weak var scrollViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var embeddedDocumentInfoWidth: NSLayoutConstraint!
+    @IBOutlet weak var embeddedDocumentInfoHeight: NSLayoutConstraint!
     var emojiArtView: EmojiArtView = EmojiArtView()
     var imageFetcher: ImageFetcher!
     var emojiArtBackgroundImage: (url: URL?, image: UIImage?) {
@@ -101,6 +103,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     private var suppressBadURLWarnings: Bool = false
     private var documentObserver: NSObjectProtocol?
     private var emojiArtViewObserver: NSObjectProtocol?
+    private var embeddedDocumentInfo: DocumentInfoViewController?
     private var font: UIFont {
         return UIFontMetrics(forTextStyle: UIFont.TextStyle.body).scaledFont(for: UIFont.preferredFont(forTextStyle: UIFont.TextStyle.body).withSize(64.0))
     }
@@ -110,7 +113,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
         emojiCollectionView.reloadSections(IndexSet(integer: 0))
     }
     
-    @IBAction func done(_ sender: UIBarButtonItem) {
+    @IBAction func done(_ sender: UIBarButtonItem? = nil) {
         if let observer = emojiArtViewObserver {
             NotificationCenter.default.removeObserver(observer)
         }
@@ -128,6 +131,10 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
         }
     }
     
+    @IBAction func close(bySegue: UIStoryboardSegue) {
+        done()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -142,6 +149,11 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
             queue: OperationQueue.main,
             using: { (notification) in
                 print("documentState changed to \(String(describing: self.document?.documentState))")
+                if self.document?.documentState == UIDocument.State.normal, let documentInfoVC = self.embeddedDocumentInfo {
+                    documentInfoVC.document = self.document
+                    self.embeddedDocumentInfoWidth.constant = documentInfoVC.preferredContentSize.width
+                    self.embeddedDocumentInfoHeight.constant = documentInfoVC.preferredContentSize.height
+                }
             }
         )
         document?.open(completionHandler: { (success) in
@@ -167,7 +179,12 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
             if let destination = segue.destination.contents as? DocumentInfoViewController {
                 document?.thumbnail = emojiArtView.snapshot
                 destination.document = document
+                if let ppc = destination.popoverPresentationController {
+                    ppc.delegate = self
+                }
             }
+        } else if segue.identifier == "Embed Document Info" {
+            embeddedDocumentInfo = segue.destination.contents as? DocumentInfoViewController
         }
     }
     
@@ -196,6 +213,10 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
             
             present(alert, animated: true)
         }
+    }
+    
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+        return UIModalPresentationStyle.none
     }
     
     func emojiArtViewDidChange(_ sender: EmojiArtView) {
